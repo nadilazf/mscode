@@ -1,0 +1,201 @@
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, ViewChildren, QueryList, Input } from '@angular/core';
+import { Router, Route } from '@angular/router';
+import { MenuItem } from './menu-item';
+import { MainMenuItemComponent } from './main-menu-item.component';
+import { AuthenticationService } from '../Shared/authentication.service';
+import { Privileges } from '../Data/model';
+import { SystemSettingService } from '../Data/system-setting.service';
+
+@Component({
+    moduleId: __moduleName,
+    selector: 'my-menu',
+    templateUrl: './menu.component.html',
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+export class MenuComponent
+{
+    @ViewChildren('mmi') mainmenuItems: QueryList<MainMenuItemComponent>;
+    @Input('menucollapsed') menuIsCollapsed: boolean;
+    items: MenuItem[];
+    public isLead: string;
+
+    constructor(
+        private _router: Router,
+        private _authentication: AuthenticationService,
+        private _SystemSettingService: SystemSettingService,
+        private _ref: ChangeDetectorRef)
+    {
+        this.items = [];
+    }
+
+    public ngOnInit() {
+        this._SystemSettingService.Lead()
+            .subscribe(data => {
+                this.isLead = data[0].Value
+                this._authentication.waitForInitailize()
+                    .filter(done => done)
+                    .subscribe(() => this.loadMenu());
+
+                });
+
+            
+           
+   
+    }
+
+   
+
+    private loadMenu()
+    {     
+        if (this._router.config.some((v: Route) => v.path && v.path.startsWith('dashboard'))
+            && this._authentication.checkPrivilege(Privileges.Statistics))
+        {
+            this.items.push(
+                new MenuItem('Rapportage', '/dashboard', 'dashboard')
+            );
+        }
+
+
+        if (this._authentication.checkPrivilege(Privileges.MarkSwapper))
+            this.items.push(new MenuItem('Swapper dashboard', '/tasks/swapper', 'list-ol'));
+        if (this._authentication.checkPrivilege(Privileges.MarkRepairMan))
+            this.items.push(new MenuItem('Repair dashboard', '/tasks/repair', 'list-ol'));
+
+        if (this._authentication.checkPrivilege(Privileges.ActionRead))
+        {
+            let children: MenuItem[] = [];
+            
+            if (this._authentication.checkPrivilege(Privileges.SwapPlan))
+                children.push(new MenuItem('Planning', '/tasks/plan', 'list-ol'));
+            if (this._authentication.checkPrivilege(Privileges.SwapChange) && !this._authentication.checkPrivilege(Privileges.MarkSwapper))
+                children.push(new MenuItem('Swapper dashboard', '/tasks/swapper', 'list-ol'));
+            if (this._authentication.checkPrivilege(Privileges.TaskChange) && !this._authentication.checkPrivilege(Privileges.MarkRepairMan))
+                children.push(new MenuItem('Repair dashboard', '/tasks/repair', 'list-ol'));
+
+            this.items.push(
+                new MenuItem('Activiteiten', '/tasks', 'thumb-tack', children)
+            );
+        }
+        if (this._authentication.checkPrivilege(Privileges.CustomerReadPartial))
+        {
+            this.items.push(
+                new MenuItem('Klanten', '/customers', 'users')
+            );
+            //this.items.push(
+            //    new MenuItem('Contacts', '/contacts', 'users')
+            //);
+        }
+
+        if (this._authentication.checkPrivilege(Privileges.LeadRead) && this.isLead == 'true') {
+            
+            this.items.push(
+                new MenuItem('Leads', '/leads', 'address-book-o')
+            );
+        }
+
+        if (this._authentication.checkPrivilege(Privileges.SubscriptionRead))
+        {
+            this.items.push(
+                new MenuItem('Abonnementen', '/subscriptions', 'address-card')
+            );
+        }
+        {
+            let children: MenuItem[] = [];            
+
+            if (this._authentication.checkPrivilege(Privileges.AssetRead))
+                children.push(new MenuItem('Fietsen', '/assets', 'cubes'));
+            if (this._authentication.checkPrivilege(Privileges.AssetManagement))
+            {
+                children.push(new MenuItem('Fiets Type (SKU)', '/maintenance/asset-type', 'archive'));
+                children.push(new MenuItem('Fiets Categorie', '/maintenance/asset-category', 'archive'));
+            }
+
+            if (this._authentication.checkPrivilege(Privileges.SwapPlan))
+            {
+                children.push(new MenuItem('Aangifte', '/tasks/theft', 'list-ol'));                
+            }                
+
+            if (this._authentication.checkPrivilege(Privileges.OrdersChange))
+            {
+                children.push(new MenuItem('Order', '/orders', 'shopping-cart'));
+            }
+            if (this._authentication.checkPrivilege(Privileges.IntakeRead))
+            {
+                children.push(new MenuItem('Intake', '/intake', 'truck'));
+            }
+            if (this._authentication.checkPrivilege(Privileges.TransferRead)) {
+                children.push(new MenuItem('Transfer', '/transfer', 'retweet'));
+            }
+
+            if (children.length > 0)
+            {
+                this.items.push(
+                    new MenuItem('Fietsen', '', 'bicycle', children)
+                );
+            }
+        }
+
+        if (this._router.config.some((v: Route) => v.path && v.path.startsWith('maintenance')))
+        {
+            //this.items.push(
+            //    new MenuItem('Business Unit', '', 'sitemap', [
+            //        new MenuItem('Voorraad beheer', '/maintenance/stock', 'cube'),
+            //        
+            //    ])
+            //);
+
+            let children: MenuItem[] = [];
+            if (this._authentication.checkPrivilege(Privileges.ManageSettings)) {
+                children.push(new MenuItem('Email Template', '/maintenance/email-template', 'book'));
+                children.push(new MenuItem('Email Log', '/maintenance/email-log', 'calendar-check-o'));
+            }
+            if (this._authentication.checkPrivilege(Privileges.SubscriptionTypeChange))
+                children.push(new MenuItem('Abonnementstype', '/maintenance/subscription-type', 'book'));
+
+            if (this._authentication.checkPrivilege(Privileges.ManageBusiness))
+            {
+                children.push(new MenuItem('Regios', '/maintenance/businessunit', 'building-o'));
+            }
+            if (this._authentication.checkPrivilege(Privileges.UserChange) || this._authentication.checkPrivilege(Privileges.Global_UserChange))
+                children.push(new MenuItem('Gebruikers', '/maintenance/users', 'users'));
+            if (this._authentication.checkPrivilege(Privileges.ManageSystemJobs))
+                children.push(new MenuItem('Systeemprocessen', '/maintenance/jobs', 'calendar-check-o'));
+
+            if (this._authentication.checkPrivilege(Privileges.FineTypeChange))
+                children.push(new MenuItem('Toeslag Type', '/maintenance/fine-type', 'wpforms'));
+
+            if (this._authentication.checkPrivilege(Privileges.ExportInvoicing))
+                children.push(new MenuItem('Finance export', '/maintenance/finance', 'calculator'));
+
+            if (this._authentication.checkPrivilege(Privileges.ManageSettings))
+                children.push(new MenuItem('Systeem instellingen', '/maintenance/settings', 'cog'));
+
+            if (children.length > 0)
+            {
+                this.items.push(
+                    new MenuItem('Beheer', '', 'wrench', children)
+                );
+            }
+
+        }
+
+
+        this._ref.markForCheck();
+    }
+
+    onMenuSelected(menu: MainMenuItemComponent)
+    {
+        // only collapse the menu's when the small side bar is visible
+        if (this.menuIsCollapsed)
+        {
+            this.mainmenuItems.forEach((item) =>
+            {
+                if (item.expanded)
+                {
+                    item.onToggleExpand();
+                }
+            });
+        }
+    }
+}

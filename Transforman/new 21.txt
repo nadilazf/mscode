@@ -1,0 +1,45 @@
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+
+import { ODataQuery, ODataServiceFactory, ODataService } from '../components/angular2-odata/index'
+import { Guid, SystemSetting } from './model';
+import { CustomErrorHandler } from '../Shared/custom-error-handler';
+import { HttpResource, ResourceDefinition } from './http-resource';
+
+
+@Injectable()
+export class SystemSettingService
+{
+    private _service: ODataService<SystemSetting>;
+
+    constructor(
+        factory: ODataServiceFactory,
+        private _resource: HttpResource,
+        private _errorHandler: CustomErrorHandler)
+    {
+        this._service = factory.CreateService<SystemSetting>(SystemSetting.EntityType);
+    }
+    public All(): Observable<SystemSetting[]>
+    {
+        return this._service.Query()
+            .OrderBy('Key')
+            .Exec();
+    }
+    public Lead(): Observable<SystemSetting[]> {
+        return this._service.Query()
+            .Filter('Key eq ' + "'LeadsMenu'")
+            .OrderBy('Key')
+            .Exec();
+    }
+   
+
+
+    private _save = new ResourceDefinition('/api/Setting/UpdateSetting', null, { 'content-type': 'application/json' });
+    public Save(key: string, value: string): void
+    {
+        this._resource.post(this._save, null, { key: key, value: value })
+            .subscribe(
+                data => { },
+                error => this._errorHandler.handleError(error));
+    }
+}

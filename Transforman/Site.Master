@@ -1,0 +1,183 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.master.cs" Inherits="Transforman.Site" %>
+
+<!DOCTYPE html>
+
+<html>
+<head runat="server">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewpor" content="width=device-width, initial-scale=1">
+   <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/vendor/metisMenu/metisMenu.min.css" rel="stylesheet">
+    <link href="/dist/css/sb-admin-2.css" rel="stylesheet">
+    <link href="/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/jquery-ui.css" rel="stylesheet" />
+    
+    <link href="vendor/datatables/css/dataTables.uikit.min.css" rel="stylesheet" />
+    <link href="vendor/datatables/css/jquery.dataTables.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css"/>
+    <script src="/js/bootstrap.min.js"></script>
+  
+    <script src="/js/jquery-1.7.1.min.js"></script>
+   
+    <script src="/js/jquery-ui.js"></script>
+    <script src="/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="/js/bootstrap-datetimepicker.pt-BR.js"></script>
+    <script src="/datatables/jquery.dataTables-min.js"></script>
+    <script src="/datatables/jquery.dataTables.js"></script>
+
+
+    <script src="/vendor/metisMenu/metisMenu.min.js"></script>
+
+    <!-- Morris Charts JavaScript -->
+    <script src="/vendor/raphael/raphael.min.js"></script>
+    <script src="/vendor/morrisjs/morris.min.js"></script>
+   
+    <script src="/js/jquery.blockUI.js"></script>
+
+  
+    <title></title>
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+</head>
+<body>
+    <div id="wrapper">
+        
+        <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0" >
+          <div style="margin-top:1%;width:40%">
+            <img src="/Images/LOGO%20BARU%20PERTAMINA.png" style="width :40%;height:25%"  />
+
+            <div style="margin-left:90%;margin-top:0%;width:100%">
+                <h1 style="color:#337ab7"><strong> TRANSPORTASI MANAGEMENT </strong></h1>
+            </div>
+
+
+           </div>
+          
+        
+        
+            <a class="navbar-brand" >   
+
+            </a>
+
+            <ul class="nav navbar-top-links navbar-right" >
+               <li>
+               <a href="#"><i class="fa fa-user fa-fw"></i><label id="lblUser"></label></a>
+               </li>
+                
+               
+            </ul>
+            <div class="navbar-default sidebar" role="navigation">
+                <div class="sidebar-nav navbar-collapse">
+                    <ul class="nav" id="side-menu">
+
+                        <li id="Home">
+                            <a href="/Default.aspx"><i class="fa fa-home  fa-fw"></i>Home</a>
+                        </li>
+
+                       
+
+                      
+                        <li id="Master">
+                            <a href="#"><i class="fa fa-desktop fa-fw"></i>Master<span class="fa arrow" onclick="toggledisplay('changethis');"></span></a>
+                            <ul class="nav nav-second-level" id="changethis" style="overflow-x: visible; overflow-y: visible">
+                                <li>
+                                    <a href="/Master/KelasMobil.aspx">Master Mobil</a>
+                                </li>
+                                
+                            </ul>
+
+                        </li>
+
+                       
+                        
+                    </ul>
+                </div>
+                <!-- /.sidebar-collapse -->
+            </div>
+            <!-- /.navbar-static-side -->
+        </nav>
+        <script>
+
+         
+            $('#lblUser').text('<%= UserName %>');
+
+
+            function toggledisplay(elementID) {
+
+                (function (style) {
+                    style.display = style.display === 'none' ? '' : 'none';
+                })(document.getElementById(elementID).style);
+            }
+
+         
+            var user = '<%= TypeUser %>';
+            if (user == '1') {
+                $('#createOrder').hide();
+                $('#Approval').hide();
+                $('#Pos1').hide();
+                $('#Pos9').hide();
+                $('#Pjs').hide();
+                
+
+            } else if (user == '2') {
+                $('#createOrder').show();
+                $('#Pos1').hide();
+                $('#Pos9').hide();
+                $('#Admin').hide();
+                $('#Admin2').hide();
+                $('#Master').hide();
+                $('#Pjs').show();
+
+
+
+            } else if (user =='3') {
+                $('#Approval').hide();
+                $('#Pos1').hide();
+                $('#Pos9').hide();
+                $('#Admin').hide();
+                $('#Admin2').hide();
+                $('#Master').hide();
+                $('#Pjs').hide();
+               
+                
+
+
+            } else if (user == '4') {
+                $('#createOrder').hide();
+                $('#Approval').hide();
+                $('#Pos9').hide();
+                $('#Admin').hide();
+                $('#Admin2').hide();
+                $('#Master').hide();
+                $('#Pjs').hide();
+                $('#Home').hide();
+
+
+            }
+            else if (user == '5') {
+                $('#Approval').hide();
+                $('#Pos1').hide();
+                $('#createOrder').hide();
+                $('#Admin').hide();
+                $('#Admin2').hide();
+                $('#Master').hide();
+                $('#Pjs').hide();
+                $('#Home').hide();
+
+
+            }
+
+
+
+
+        </script>
+    </div>
+    <form id="form1" runat="server">
+        <div>
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+            </asp:ContentPlaceHolder>
+        </div>
+    </form>
+</body>
+</html>
